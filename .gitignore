@@ -1,0 +1,6 @@
+script.tvguide
+==============
+
+.idea
+*.pyc
+*.pyo
