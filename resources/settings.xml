@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<settings>
+	<category label="30101">
+		<setting id="source" label="30101" type="labelenum" default="YouSee.tv"
+                 values="YouSee.tv|XMLTV|ONTV.dk" />
+
+        <setting id="youseetv.category" label="30102" type="labelenum" default="Danske"
+                 values="Danske|Filmkanaler|Grundpakken|Mellempakken|Fuldpakken|Nordiske|Engelske|Tyske|Latinske|Slaviske|Tyrkiske|Kurdiske|Arabiske|Asiatiske"
+                 visible="eq(-1,0)" />
+        <setting id="program.background.enabled" label="30107" type="bool" default="true" visible="eq(-2,0)"/>
+        <setting id="allchannels.enabled" value="false"/>
+        <setting id="entertainment.enabled" value="false"/>
+        <setting id="movies.enabled" value="false"/>
+        <setting id="kids.enabled" value="false"/>
+        <setting id="sports.enabled" value="false"/>
+        <setting id="news.enabled" value="false"/>
+        <setting id="documentaries.enabled" value="false"/>
+        <setting id="musicradio.enabled" value="false"/>
+        <setting id="adult.enabled" value="false"/>
+        <setting id="favourites.enabled" value="false"/>
+        <setting id="picture.enabled" value="false"/>
+        <setting id="sound.enabled" value="false"/>
+        <setting id="changelanguage.enabled" value="false"/>
+        <setting id="changepin.enabled" value="false"/>
+        <setting id="viewrestrictions.enabled" value="false"/>
+        <setting id="removechannels.enabled" value="false"/>
+        <setting id="systemdetails.enabled" value="false"/>
+        <setting id="speedtest.enabled" value="false"/>
+        <setting id="english.enabled" value="true"/>
+        <setting id="french.enabled" value="false"/>
+        <setting id="xmltv.file" label="30103" type="file" visible="eq(-3,1)" />
+        <setting id="xmltv.logo.folder" label="30116" type="folder" visible="eq(-4,1)"/>
+        <setting id="ontv.url" label="30117" type="text" visible="eq(-5,2)" default="http://ontv.dk/xmltv/c81e728d9d4c2f636f067f89cc14862c"/>
+        <setting id="allchannel.url" label="30118" type="text" visible="eq(-5,2)" default="http://67.23.248.61/~ytestbox/xmltv/afa6ef08085e327b29be8c84c3218f20"/>
+    </category>
+
+    <category label="30114">
+        <setting id="cache.data.on.xbmc.startup" label="30110" type="bool" default="true" />
+        <setting id="enable.osd" label="30118" type="bool" default="true" enable="eq(2,false)" />
+        <setting label="30119" type="lsep" />
+        <setting id="alternative.playback" label="30120" type="bool" default="false" />
+        <setting label="30121" type="lsep" />
+    </category>
+
+    <category label="30112">
+        <setting id="notifications.enabled" label="30106" type="bool" default="true" />
+        <setting label="30108" type="action" action="RunScript($CWD/notification.py)" />
+    </category>
+</settings>
+
