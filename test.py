@@ -962,8 +962,11 @@ class MyClass(xbmcgui.WindowXML):
                  #cur.close()#
              # print self.logtime('end')
              self.getControl(4202).setLabel('100%')
-             half_hour = datetime.timedelta(minutes = 30, hours = 2)
-             self.getControl(4203).setLabel("test 1")
+             xbmc.sleep(3000)
+             
+             #set the time in the label
+             half_hour = datetime.timedelta(minutes = 30)
+             self.getControl(4203).setLabel(half_hour)
              
              
              for col in range(1, 4):
@@ -972,7 +975,7 @@ class MyClass(xbmcgui.WindowXML):
                  self.getControl(4204).setLabel("test 2")
                  self.getControl(4205).setLabel("test 3")
                  #startTime += half_hour
-                 xbmc.sleep(3000)
+                 
                  self.getControl(4200).setVisible(False)
                  self.getControl(4202).setVisible(False)
                  self.getControl(4203).setVisible(True)
