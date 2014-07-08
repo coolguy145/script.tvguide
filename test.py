@@ -964,23 +964,20 @@ class MyClass(xbmcgui.WindowXML):
              self.getControl(4202).setLabel('100%')
              xbmc.sleep(3000)
              
-             #set the time in the label
+             #set the time of half hour in the labels
              half_hour = datetime.timedelta(minutes = 30)
              self.getControl(4203).setLabel(half_hour)
-             
-             
-             for col in range(1, 4):
-                 print half_hour
-                 #self.getControl(4203).setLabel(self.formatTime(half_hour))
-                 self.getControl(4204).setLabel("test 2")
-                 self.getControl(4205).setLabel("test 3")
-                 #startTime += half_hour
+             self.getControl(4203).setLabel(self.formatTime(half_hour))
+             self.getControl(4204).setLabel(self.formatTime(half_hour))
+             self.getControl(4205).setLabel(self.formatTime(half_hour))
+             startTime += half_hour
                  
-                 self.getControl(4200).setVisible(False)
-                 self.getControl(4202).setVisible(False)
-                 self.getControl(4203).setVisible(True)
-                 self.getControl(4204).setVisible(True)
-                 self.getControl(4205).setVisible(True)
+             self.getControl(4200).setVisible(False)
+             self.getControl(4202).setVisible(False)
+             self.getControl(4203).setVisible(True)
+             self.getControl(4204).setVisible(True)
+             self.getControl(4205).setVisible(True)
+             
 
 
 
