@@ -20,6 +20,7 @@ from UserDict import DictMixin
 # two separate flags to kill the AllChannelsThread and the TimerThread
 __killthread__ = False
 __killtimer__ = False
+channels_per_page = 7
 
 
 #get actioncodes from keyboard.xml
@@ -414,6 +415,7 @@ class MyClass(xbmcgui.WindowXML):
          savesettings_blue_BOX = self.getControl(143)
          savesettings_blue_BOX.setImage("special://home/addons/script.tvguide/resources/skins/Default/media/savesettings_blue.png")
          cSetVisible(self,146,False)
+         self.getControl(146).setLabel('$INFO[System.Date(ddd dd mmm)]'  + ' ' + time.strftime("%I").lstrip('0') + time.strftime(":%M%p"))
          self.getControl(116).setVisible(False)
          language_yellow_BOX = self.getControl(116)
          language_yellow_BOX.setImage("special://home/addons/script.tvguide/resources/skins/Default/media/lang_yellow.png")
@@ -573,6 +575,9 @@ class MyClass(xbmcgui.WindowXML):
          cSetVisible(self,4200,False)
          loading_gif = self.getControl(4200)
          loading_gif.setImage("special://home/addons/script.tvguide/resources/skins/Default/media/tvguide-loading.gif")
+         cSetVisible(self,4203,False)
+         tvguide_time_bar = self.getControl(4203)
+         tvguide_time_bar.setImage("special://home/addons/script.tvguide/resources/skins/Default/media/channels_bar1.png")
          ADDON = xbmcaddon.Addon(id = 'script.tvguide')
          english_enabled = ADDON.getSetting('english.enabled') == 'true'
          french_enabled = ADDON.getSetting('french.enabled') == 'true'
@@ -767,9 +772,9 @@ class MyClass(xbmcgui.WindowXML):
          self.getControl(4008).setLabel(self.getString(30104))
          cSetVisible(self,4201,False)
          cSetVisible(self,4202,False)
-         cSetVisible(self,4203,False)
          cSetVisible(self,4204,False)
          cSetVisible(self,4205,False)
+         cSetVisible(self,4206,False)
 
 
 
@@ -882,17 +887,12 @@ class MyClass(xbmcgui.WindowXML):
          self.thread = None
 
 
-     def formatTime(self, timestamp):
-         format = xbmc.getRegion('time').replace(':%S', '').replace('%H%H', '%H')
-         return timestamp.strftime(format)
-
-
      def allchannels_timer(self):
          global __killthread__
          self.getControl(4202).setLabel("0%")
-         # self.logtime('start')
+         #self.logtime('start')
          try:
-         # DOWNLOAD THE XML SOURCE HERE
+             # DOWNLOAD THE XML SOURCE HERE
              url = ADDON.getSetting('allchannel.url')
              data = ''
              response = urllib2.urlopen(url)
@@ -964,20 +964,65 @@ class MyClass(xbmcgui.WindowXML):
              self.getControl(4202).setLabel('100%')
              xbmc.sleep(3000)
              
-             #set the time of half hour in the labels
-             half_hour = datetime.timedelta(minutes = 30)
-             self.getControl(4203).setLabel(half_hour)
-             self.getControl(4203).setLabel(self.formatTime(half_hour))
-             self.getControl(4204).setLabel(self.formatTime(half_hour))
-             self.getControl(4205).setLabel(self.formatTime(half_hour))
-             startTime += half_hour
-                 
+             # Set the date and time row
+             current_time = time.time() # now (in seconds)
+             half_hour = current_time + 60*30  # now + 30 minutes
+             one_hour = current_time + 60*60  # now + 60 minutes
+
+             for t in [current_time,half_hour,one_hour]:
+                 if (0 <= datetime.datetime.now().minute <= 29):
+                     self.getControl(4204).setLabel(time.strftime("%I").lstrip('0') + ':00' + time.strftime("%p"))
+                     self.getControl(4205).setLabel(time.strftime("%I").lstrip('0') + ':30' + time.strftime("%p"))
+                     self.getControl(4206).setLabel(time.strftime("%I" + ":00%p",time.localtime(t)).lstrip("0"))
+                 else:
+                     self.getControl(4204).setLabel(time.strftime("%I").lstrip('0') + ':30' + time.strftime("%p"))
+                     self.getControl(4205).setLabel(time.strftime("%I" + ":00%p",time.localtime(t)).lstrip("0"))
+                     self.getControl(4206).setLabel(time.strftime("%I" + ":30%p",time.localtime(t)).lstrip("0"))
+
+
+
+             #Pull the data from the database
+             channelList = list()
+             channel_db = xbmc.translatePath(os.path.join('special://userdata/addon_data/script.tvguide', 'source.db'))
+
+             if os.path.exists(channel_db):
+                 cur.execute('SELECT channel, title, start_date, stop_date FROM programs WHERE channel')
+                 for row in cur:
+                     channel = row[0].encode('ascii'), row[1].encode('ascii'), row[2], row[3]
+                     channelList.append(channel)
+                     print channel
+                     #print "'%s', '%s', %d, %d" % row
+                 cur.close()
+
+
+             channelStart = 0
+             channelEnd = 0
+             #if channelStart < 0:
+                 #channelStart = len(channels) - 1
+             #elif channelStart > len(channels) - 1:
+                 #channelStart = 0
+                 #channelEnd = channelStart + channels_per_page
+
+
+             # set the channels text
+             #for index in range(0, channels_per_page):
+                 #if index >= len(channels):
+                     #self.setControlLabel(4010 + index, ' ')
+                 #else:
+                     #channel = channels[index]
+                     #self.setControlLabel(4010 + index, channel.title)
+
+
+
+
+             #Enabled EPG and other controls
              self.getControl(4200).setVisible(False)
              self.getControl(4202).setVisible(False)
-             self.getControl(4203).setVisible(True)
+             self.getControl(4203).setVisible(False)
              self.getControl(4204).setVisible(True)
              self.getControl(4205).setVisible(True)
-             
+             self.getControl(4206).setVisible(True)
+
 
 
 
@@ -986,7 +1031,8 @@ class MyClass(xbmcgui.WindowXML):
              if e.value == 'downloading':
                  try:
                     if response is not None:
-                        del response
+                         self.thread = AllChannelsThread(self.allchannels_timer)
+                         self.thread.start()
                     return
                  except:
                     return
@@ -1240,7 +1286,6 @@ class MyClass(xbmcgui.WindowXML):
 
 
          if action == ACTION_BACKSPACE:
-             # I added the other code because at least on windows, ACTION_BACKSPACE was not catching the backspace button
              if allchannels_enabled:
                  cSetVisible(self,3,True)
                  cSetVisible(self,5,True)
@@ -1264,6 +1309,10 @@ class MyClass(xbmcgui.WindowXML):
                  ADDON.setSetting('allchannels.enabled', 'false')
                  self.abortdownload()
                  self.getControl(4202).setLabel('')
+                 self.getControl(4203).setVisible(False)
+                 self.getControl(4204).setVisible(False)
+                 self.getControl(4205).setVisible(False)
+                 self.getControl(4206).setVisible(False)
                  profilePath = xbmc.translatePath(os.path.join('special://userdata/addon_data/script.tvguide', 'source.db'))
                  # Deletes the db file if it persists after abort
                  if os.path.exists(profilePath):
@@ -2057,8 +2106,8 @@ class MyClass(xbmcgui.WindowXML):
                      cSetVisible(self,4201,True)
                      cSetVisible(self,4202,True)
                      self.getControl(4202).setLabel("0%")
-                     if self.thread != None:
-                         del self.thread
+                     
+                     
                      self.thread = AllChannelsThread(self.allchannels_timer)
                      self.thread.start()
 
